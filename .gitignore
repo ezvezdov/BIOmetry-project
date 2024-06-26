@@ -1,3 +1,4 @@
+# Ignore hw1_fp sensetive files
 hw1_fp/mk_zip.sh
 hw1_fp/report/CustomFingerprints
 hw1_fp/my_fingerprints
@@ -6,7 +7,14 @@ hw1_fp/Fingerprint.zip
 hw1_fp/database.zip
 hw1_fp/data
 hw1_fp/report/build
-hw2_ds
+
+# Ignore hw2_ds sensetive files
+hw2_ds/Own_Signatures
+hw2_ds/BIO_own_signatures.zip
+hw2_ds/report/report.pdf
+hw2_ds/report/data/my_signatures
+hw2_ds/Toolbox/SVC2004
+
 hw3_iris
 
 ## Core latex/pdflatex auxiliary files:

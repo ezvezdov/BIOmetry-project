@@ -1,0 +1,338 @@
+\documentclass{article}
+
+% Language setting
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{ifluatex}
+\ifluatex
+  \usepackage{pdftexcmds}
+  \makeatletter
+  \let\pdfstrcmp\pdf@strcmp
+  \let\pdffilemoddate\pdf@filemoddate
+  \makeatother
+\fi
+\usepackage{svg}
+\svgsetup{
+    inkscape=pdf,
+    inkscapeexe={/usr/bin/inkscape -z -C}
+}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Biometrics: Dynamic signature}
+\author{Yauheni Zviazdou}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\section{Introduction}
+
+In this report I will test GMM and DTW methods and describe its result. 
+Also I will try to optimize results and tune hyperparameters to better performances. 
+In the end of report I will show work of methods on my own signatures.
+
+I'm 12th in the student list, so I have signatures IDs:
+
+persons = [1 2 4 7 8 10 13 18 26 27 29 31 32 34 38]
+
+\subsection{Choosing threshold strategy}
+
+To choose threshold, we should know what is our main aim. 
+Dynamic signatures are usually used for person verification, so I decided to set threshold, that's maximum permissible False Negative Rate (fake signature perceived as genuine) is 10\% ( \(max\_FN = 0.1\) ).
+
+
+\subsection{Abbreviations}
+
+\begin{itemize}
+    \item FP or FPR is False Positive Rate.
+    \item FN or FNR is False Negative Rate.
+\end{itemize}
+
+\section{GMM method}
+
+\subsection{Algorithm for finding threshold}
+
+I write a simple algorithm for finding threshold.
+
+\begin{enumerate}
+    \item Set variable \( global\_threshold = 0\).
+    \item for person 	\textit{i} do:
+    \item \quad Make GMM model using training signatures (by defaul \(trainSamplesNum = 3\) and \newline \(gausianNum = 3\), using coordinates and pressure).
+    \item \quad Find scores of testing set using computed model.
+    \item \quad Using function \( get\_err( clss, scores ) \) get results of thresholding by every score in scores. Using this data, find the first score occurrence, where FN is less then \(max\_FN\), lable it \( iteration\_threshold\).
+    \item \quad Update \( global\_threshold\) this way: \( global\_threshold = global\_threshold + {iteration\_threshold \over persons\_amount} \).
+\end{enumerate}
+
+
+\subsection{Testing the algorithm}
+\subsubsection{Testing with just 5 persons}
+Let's start testing with signature from 5 different persons.
+
+After making 50 start of algorithm the results are:
+\begin{itemize}
+    \item Threshold fog GMM is -3561.
+    \item Amount of test cases is 185.
+    \item Amount of False Negatives is 15.
+    \item Amount of False Positives is 50.
+    \item Error is: 0.351.
+    \item False Negative error: 0.081.
+    \item False Positive error: 0.270.
+\end{itemize}
+
+Let's put all test cases on the graph with threshold.
+
+\begin{figure}[htbp] 
+    \centering
+    \def\svgscale{0.7}
+    \includesvg{data/GMM/GMM_5persons_smooth.svg}
+    \caption{FPR/FNR of 5 persons computed using GMM model.}
+    \label{GMM_5persons}
+\end{figure}
+
+\subsubsection{Testing with 12 persons}
+Let's start testing with signature from 12 different persons.
+After making 50 start of algorithm the results are:
+
+
+\begin{itemize}
+    \item Threshold fog GMM is -4084.
+    \item Amount of test cases is 444.
+    \item Amount of False Negatives is 25.
+    \item Amount of False Positives is 111.
+    \item Error is: 0.306.
+    \item False Negative error: 0.056.
+    \item False Positive error: 0.250.
+\end{itemize}
+
+\begin{figure}[htbp] 
+    \centering
+    \def\svgscale{0.6}
+    \includesvg{data/GMM/GMM_12persons_smooth.svg}
+    \caption{FPR/FNR of 12 persons computed using GMM model.}
+    \label{GMM_12persons}
+\end{figure}
+
+\newpage
+
+\subsubsection{Testing analysis}
+As we can see, that the global error is bigger when we computing threshold using 5 person's data instead of 12 persons.
+
+\section{DTW method}
+
+I implemented DTW algorithm in scripts \(make\_model.m\) and \(score.m\).
+
+\subsection{Algorithm for finding threshold}
+It's easier to find threshold in DTW, because model contained only example signatures and it shouldn't learn.
+
+\begin{enumerate}
+  \item Set variable \( global\_threshold = 0\).
+  \item for person 	\textit{i} do:
+  \item \quad Save example signatures to DTW model ( by default \(trainSamplesNum = 3\), using coordinates and pressure).
+  \item \quad Find scores of testing set using DTW model.
+  \item \quad Using function \( get\_err( clss, scores ) \) get results of thresholding by every score in scores. Using this data, find the first score occurrence, where FN is less then \(max\_FN\), label it \( iteration\_threshold\).
+  \item \quad Update \( global\_threshold\) this way: \( global\_threshold = global\_threshold + {iteration\_threshold \over persons\_amount} \).
+\end{enumerate}
+
+
+\subsection{Testing the algorithm}
+\subsubsection{Testing with just 5 persons}
+
+\begin{itemize}
+  \item Threshold fog DTW is -102608.
+  \item Amount of test cases is 185.
+  \item Amount of False Negatives is 7.
+  \item Amount of False Positives is 42.
+  \item Error is: 0.265.
+  \item False Negative error: 0.038.
+  \item False Positive error: 0.227.
+\end{itemize}
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.7}
+  \includesvg{data/DTW/DTW_5persons_smooth.svg}
+  \caption{FPR/FNR of 5 persons computed using DTW model.}
+  \label{DTW_5persons}
+\end{figure}
+
+\subsubsection{Testing with 12 persons}
+
+\begin{itemize}
+  \item Threshold fog DTW is -110191.
+  \item Amount of test cases is 444.
+  \item Amount of False Negatives is 11.
+  \item Amount of False Positives is 112.
+  \item Error is: 0.277.
+  \item False Negative error: 0.025.
+  \item False Positive error: 0.252.
+\end{itemize}
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.7}
+  \includesvg{data/DTW/DTW_12persons_smooth.svg}
+  \caption{FPR/FNR of 12 persons computed using DTW model.}
+  \label{DTW_12persons}
+\end{figure}
+
+\newpage
+
+\subsubsection{Testing analysis}
+As we can see, that results are more accurate when we use more testing data to find optimal threshold.
+
+Using DTW method we have less error then using GMM.
+
+\section{Optimization}
+\subsection{Data normalization}
+Implementation in \textit{preprocess.m}
+
+We can normalize features using formula \( x_{normalized}  = {x - \mu \over   sigma^2}\).
+
+\begin{itemize}
+  \item Error is: 0.313.
+  \item False Negative error: 0.052.
+  \item False Positive error: 0.261.
+\end{itemize}
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.7}
+  \includesvg{data/Optimisation/DTW_normalization.svg}
+  \caption{FPR/FNR of DTW method using normalized input data.}
+  \label{DTW_normalization}
+\end{figure}
+
+\newpage
+
+Results are worse while we are using normalization. I think it's because after normalization we loss details of signature contour creation.
+
+\subsection{Adding extra features}
+
+Implementation in \textit{extract\_features.m}
+
+I added extra features, velocity \(v_t\) and acceleration \(a_t\) in every time step.
+
+The results are:
+\begin{itemize}
+  \item Error is: 0.273.
+  \item False Negative error: 0.023.
+  \item False Positive error: 0.250.
+\end{itemize}
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.7}
+  \includesvg{data/Optimisation/DTW_extra_features.svg}
+  \caption{FPR/FNR of DTW method with extra features \(v_t\) and \(a_t\).}
+  \label{DTW_extra_features}
+\end{figure}
+
+Results are better, because of bigger amount of information about signature contour creating.
+
+\section{Size of testing set}
+In this section I'll classify signatures with extra features using DTW with different (by size) test sets.
+
+\begin{itemize}
+  \item 1 signature
+  \begin{itemize}
+    \item Error is: 0.314.
+    \item False Negative error: 0.011.
+    \item False Positive error: 0.303.
+  \end{itemize}
+  \item 3 signatures (default)
+  \begin{itemize}
+    \item Error is: 0.273.
+    \item False Negative error: 0.023.
+    \item False Positive error: 0.250.
+  \end{itemize}
+  \item 5 signatures
+  \begin{itemize}
+    \item Error is: 0.260.
+    \item False Negative error: 0.012.
+    \item False Positive error: 0.248.
+  \end{itemize}
+  \item 7 signatures
+  \begin{itemize}
+    \item Error is: 0.232.
+    \item False Negative error: 0.061.
+    \item False Positive error: 0.172.
+  \end{itemize}
+\end{itemize}
+
+As we can see that results are improving in proportion to the number of test samples. 
+But in real life using more then 3 samples is time consuming, so the most commonly used value is 3.
+
+\section{Classification of own signature}
+
+I captured my own signature on tablet for dynamic signatures.
+Also I asked a classmate to falsify my signature.
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.69}
+  \includesvg{data/my_signatures/original_fake.svg}
+  \caption{Original (left) and fake (right) signatures.}
+  \label{own_fake_original}
+\end{figure}
+
+\newpage
+
+I chose optimal hyperparameters from other tests. 
+
+\begin{itemize}
+  \item Used method: DTW.
+  \item Threshold fog DTW: -114529.
+  \item Amount of train samples: 3.
+  \item Extra features: velocity, acceleration.
+  \item Normalization: No.
+\end{itemize}
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.7}
+  \includesvg{data/my_signatures/fpr_fnr.svg}
+  \caption{FPR/FNR of signatures set.}
+  \label{fpr_fnr_own}
+\end{figure}
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.3}
+  \includesvg{data/my_signatures/histogram.svg}
+  \caption{Ratio of score and right classification.}
+  \label{histogram_own}
+\end{figure}
+
+\newpage
+
+The results of classification are:
+\begin{itemize}
+  \item Amount of test cases is 10.
+  \item Amount of False Negatives is 0.
+  \item Amount of False Positives is 1.
+  \item Error is: 0.100.
+  \item False Negative error: 0.000.
+  \item False Positive error: 0.100.
+\end{itemize}
+
+Only one of the original signatures was classified as fake, it's good result.
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.7}
+  \includesvg{data/my_signatures/missclassified_signature_right.svg}
+  \caption{Classified right signature (left) and misclassified signature (right)}
+  \label{misclassified_signature}
+\end{figure}
+
+\section{Conclusion} DTF method has better results then GMM. Results of threshold are better proportionally to the amount of train data. Optimal amount of signatures for creating signature model is 3, but bigger amount has better results. Normalization make results worse. Extra features improve accuracy. 
+
+\end{document}
