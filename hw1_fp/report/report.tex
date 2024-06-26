@@ -1,0 +1,232 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{ifluatex}
+\ifluatex
+  \usepackage{pdftexcmds}
+  \makeatletter
+  \let\pdfstrcmp\pdf@strcmp
+  \let\pdffilemoddate\pdf@filemoddate
+  \makeatother
+\fi
+\usepackage{svg}
+\svgsetup{
+    inkscape=pdf,
+    inkscapeexe={/usr/bin/inkscape -z -C}
+}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Biometrics: Fingerprint recognition}
+\author{Yauheni Zviazdou}
+
+\begin{document}
+\maketitle
+
+
+\section{Introduction}
+
+I chose fingerprint \(id = 3; num = 7;\) (I'm 11th in the list, but database has just 10 fingerprints series).
+
+\section{Preprocessing}
+
+\subsection{Fingerprint processing without segmentation}
+
+Usually people can process fingerprints without prepossessing, but recognition with computer methods use methods based on computing orientation and frequency.
+
+\begin{figure}[htbp] 
+  \centering
+  \def\svgscale{0.5}
+  \includesvg{NoSegmentation/NoSegmentationOrientation.svg}
+  \caption{Example of computing orientation field without segmentation}
+  \label{NoSegmentationOrientation}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.5}
+  \includesvg{NoSegmentation/NoSegmentationFrequency.svg}
+  \caption{Computing a frequency of non-segmented fingerprint image.}
+\end{figure}
+
+\newpage
+
+\subsection{Fingerprint segmentation from background}
+For segmentation fingerprint from background I chose method based on  image pixel intensity variance thresholding. I compute variance of blocks \(blockSize\times blockSize\) and threshhold it. By default I use \textit{blockSize=16} and \(threshold=0.001\). Also I implemented method that removes misclassified foreground blocks (by default \textit{minBlockSize = blockSize * 5} ).
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.6}
+  \includesvg{Segmentation/Segmentation.svg}
+  \caption{Fingerprint segmentation from background.}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.6}
+  \includesvg{Segmentation/SegmentationOrientation.svg}
+  \caption{Visualization of orientation field}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.4}
+  \includesvg{Segmentation/SegmentationFrequency.svg}
+  \caption{Visualization of frequency}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.6}
+  \includesvg{Segmentation/SegmentationGabor.svg}
+  \caption{Enhancement using Gabor filters}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.6}
+  \includesvg{Segmentation/SegmentationMinutia.svg}
+  \caption{Highlighting minutiae.}
+\end{figure}
+
+\newpage
+
+\subsection{Different types of fingerprint scanners}
+
+There are some types of scanners: \textbf{Optical scanners},\textbf{Capacitive or CMOS scanners},\textbf{Ultrasonic fingerprint scanners},\textbf{Thermal scanners}.
+
+There are examples of preprocessed images of my fingerprint using different scanners:
+\begin{figure}[htbp] 
+  \def\svgscale{0.5}
+  \includesvg{CustomFingerprints/f_1_13_SegmentationMinutia.svg}
+  \def\svgscale{0.5}
+  \includesvg{CustomFingerprints/f_1_14_SegmentationMinutia.svg}
+  \def\svgscale{0.5}
+  \includesvg{CustomFingerprints/f_1_15_SegmentationMinutia.svg}
+  \def\svgscale{0.5}
+  \includesvg{CustomFingerprints/f_1_17_SegmentationMinutia.svg}
+  \caption{Examples of preprocessed fingerprints from different scanners}
+  \label{scanners}
+\end{figure}
+
+
+As you can see at Figure~\ref{scanners} majority of minutiae are highlighted right, but for better performances it's good to use different segmentation methods (or different parameters \textit{threshhold} and \textit{blockSize}) for different scanners.
+
+\newpage
+\section{Fingerprint Matching}
+\subsection{Example Matching (same person, same scanner)}
+
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.3}
+  \includesvg{ExampleMatching/Example.svg}
+  \caption{Two fingerprints from same person.}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.5}
+  \includesvg{ExampleMatching/ExampleAlign.svg}
+  \caption{Aligning the fingerprint}
+\end{figure}
+
+\begin{figure}[htbp]
+  \def\svgscale{0.5}
+  \includesvg{ExampleMatching/ExampleMinutia1.svg}
+  \def\svgscale{0.5}
+  \includesvg{ExampleMatching/ExampleMinutia2.svg}
+  \caption{Highlighted minutiae in two fingerprints.}
+\end{figure}
+
+\newpage
+number of matched minutiae : 13
+
+number of minutiae in input image : 22
+
+number of minutiae in database image : 23
+ 
+Score ot the minutiae matching: 0.46984
+
+Score ot the fingercode matching: 0.00022896
+
+13/22 matched minutiae with just 0.42 minutiae score is a good result!
+
+\subsection{Attempt to find best matching}
+
+There are two fingerprints with best matching from \(fvc02\_4\):
+\begin{itemize}
+  \item id = 3, num = 7
+  \item id = 1, num = 2
+\end{itemize}
+
+
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.3}
+  \includesvg{BestMatch/BestMatch.svg}
+  \caption{Two fingerprints from different persons.}
+\end{figure}
+\newpage
+
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.5}
+  \includesvg{BestMatch/BestMatchAlign.svg}
+  \caption{Aligning the fingerprint}
+\end{figure}
+
+\begin{figure}[htbp]
+  \def\svgscale{0.5}
+  \includesvg{BestMatch/BestMatchMinutia1.svg}
+  \def\svgscale{0.5}
+  \includesvg{BestMatch/BestMatchMinutia2.svg}
+  \caption{Highlighted minutiae in two fingerprints.}
+\end{figure}
+
+number of matched minutiae : 4
+
+number of minutiae in input image : 20
+
+number of minutiae in database image : 23
+
+Score ot the minutiae matching: 0.5548
+
+Score ot the fingercode matching: 0.004335
+
+\newpage
+\subsection{Matching results of same person, but with different scanners}
+
+\begin{figure}[htbp]
+  \centering
+  \def\svgscale{0.3}
+  \includesvg{DifferentScanners/Different.svg}
+  \caption{Two fingerprints from same persons.}
+\end{figure}
+
+\begin{figure}[htbp]
+  \def\svgscale{0.5}
+  \includesvg{DifferentScanners/DifferentMinutia1.svg}
+  \def\svgscale{0.5}
+  \includesvg{DifferentScanners/DifferentMinutia2.svg}
+  \caption{Highlighted minutiae in two fingerprints.}
+\end{figure}
+
+number of matched minutiae : 0
+
+number of minutiae in input image : 9
+
+number of minutiae in database image : 25
+
+Score for minutiae : NaN
+
+Score ot the minutiae matching: NaN
+
+Score ot the fingercode matching: 0.0056104
+
+\textbf{Conclusion}: We can't use different scanners to identify person. There is very big risk of identification error.
+
+\end{document}

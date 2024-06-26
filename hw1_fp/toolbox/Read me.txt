@@ -1,0 +1,15 @@
+Upravy
+Po doplneni ukolu je treba prepsat vsechny vyskyty funkci s P na konci
+
+predzpracovani_demo 	9. radek	segmentimageP
+			38. radek	enhance2ridgevalleyP
+
+porovnani_demo		8. radek	segmentimageP
+			14. radek	segmentimageP
+			34. radek	matchP
+
+preprocess 		25. radek	segmentimageP
+
+fingercode_score	14. radek	fingercode_creationP
+			15. radek	fingercode_creationP
+

@@ -1,3 +1,13 @@
+hw1_fp/mk_zip.sh
+hw1_fp/report/CustomFingerprints
+hw1_fp/my_fingerprints
+hw1_fp/report/report.pdf
+hw1_fp/Fingerprint.zip
+hw1_fp/database.zip
+hw1_fp/data
+hw2_ds
+hw3_iris
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
