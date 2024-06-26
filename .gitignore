@@ -15,7 +15,17 @@ hw2_ds/report/report.pdf
 hw2_ds/report/data/my_signatures
 hw2_ds/Toolbox/SVC2004
 
-hw3_iris
+# Ignore hw3_ds sensetive files
+hw3_iris/my_iris_original.tar
+hw3_iris/my_iris_original
+hw3_iris/Iris Toolbox/Data
+hw3_iris/Iris Toolbox/Images
+hw3_iris/Iris Toolbox/my_iris_cropped
+hw3_iris/HW3-Zviazdou.zip
+hw3_iris/report/report.pdf
+hw3_iris/report/Resources/MY_IRIS
+hw3_iris/Iris_recognition.pdf
+hw3_iris/Iris Toolbox/my_iris_database.mat
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
